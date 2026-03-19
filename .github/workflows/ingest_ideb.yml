@@ -1,0 +1,35 @@
+name: Ingest IDEB Municipal
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # Runs on September 1st every odd year — IDEB released biennially in Q3
+    - cron: "0 6 1 9 */2"
+
+jobs:
+  ingest:
+    name: Download → Convert → Upload
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: ingestion/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r ingestion/requirements.txt
+
+      - name: Run ingestion
+        working-directory: ingestion
+        run: python ideb.py

@@ -1,0 +1,22 @@
+# Databricks tooling
+.databricks/
+
+# Python
+__pycache__/
+*.egg-info
+build/
+dist/
+.venv/
+*.pyc
+
+# Notebooks scratch/exploration (not tracked)
+scratch/**
+!scratch/README.md
+
+# Local env overrides (never commit secrets)
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db

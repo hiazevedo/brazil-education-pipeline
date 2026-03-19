@@ -1,0 +1,41 @@
+name: Ingest Censo Escolar
+
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "Comma-separated years to ingest (e.g. 2022,2023)"
+        required: true
+        default: "2023"
+  schedule:
+    # Runs on April 1st every year — Censo Escolar released in Q1/Q2
+    - cron: "0 6 1 4 *"
+
+jobs:
+  ingest:
+    name: Download → Filter → Upload
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      CENSO_YEARS: ${{ github.event.inputs.years || '2023' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: ingestion/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r ingestion/requirements.txt
+
+      - name: Run ingestion
+        working-directory: ingestion
+        run: python censo_escolar.py

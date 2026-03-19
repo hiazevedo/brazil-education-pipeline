@@ -1,0 +1,27 @@
+[project]
+name = "brazil_education_pipeline"
+version = "0.1.0"
+authors = [{ name = "higor_com@hotmail.com" }]
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    # Runtime dependencies deployed to Databricks clusters
+    # pyspark and mlflow are pre-installed on Databricks Runtime — do not add here
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+    "databricks-connect>=15.4,<15.5",
+    "ipykernel",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+ignore = ["E501"]
