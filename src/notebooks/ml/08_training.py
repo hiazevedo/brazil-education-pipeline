@@ -12,6 +12,7 @@
 
 import mlflow
 import mlflow.spark
+from pyspark.sql import functions as F
 from pyspark.ml import Pipeline
 from pyspark.ml.feature import VectorAssembler, StringIndexer, Imputer
 from pyspark.ml.classification import RandomForestClassifier
@@ -50,12 +51,10 @@ print(f"Training year: {TRAIN_YEAR} | Train: {df_train_raw.count():,} | Test: {d
 
 # COMMAND ----------
 
-from pyspark.sql import functions as F
-
-CATEGORICAL_COLS = ["SG_UF_ESC", "regiao"]
+CATEGORICAL_COLS = ["SG_UF_ESC", "regiao", "TP_SEXO", "Q001", "Q002", "Q006"]
 NUMERIC_COLS = [
-    "TP_FAIXA_ETARIA", "TP_SEXO", "TP_COR_RACA", "TP_ESCOLA",
-    "TP_LOCALIZACAO", "Q001", "Q002", "Q006", "infra_score",
+    "TP_FAIXA_ETARIA", "TP_COR_RACA", "TP_ESCOLA",
+    "TP_LOCALIZACAO", "infra_score",
     "NU_NOTA_CN", "NU_NOTA_CH", "NU_NOTA_LC", "NU_NOTA_MT", "NU_NOTA_REDACAO",
 ]
 
