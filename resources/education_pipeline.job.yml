@@ -74,6 +74,13 @@ resources:
             notebook_path: ../src/notebooks/ml/08_training.py
           environment_key: default
 
+        - task_key: ml_clustering
+          depends_on:
+            - task_key: gold_analytics
+          notebook_task:
+            notebook_path: ../src/notebooks/ml/08b_clustering.py
+          environment_key: default
+
         - task_key: ml_inference
           depends_on:
             - task_key: ml_training

@@ -2,22 +2,20 @@
 
 # MAGIC %md
 # MAGIC # ML — Model Training
-# MAGIC Trains two models on `ml_features.enem_features` using **scikit-learn**
-# MAGIC (pyspark.ml / Spark MLlib is not supported on serverless compute).
+# MAGIC Trains a **RandomForestClassifier** on `ml_features.enem_features`.
 # MAGIC
-# MAGIC - **Classifier** (RandomForest): predicts if student is above national average
-# MAGIC - **Regressor** (GradientBoosting): predicts total ENEM score
+# MAGIC **Target**: `label_clf` — 1 if student is above national average, else 0
 # MAGIC
-# MAGIC Models are logged to MLflow and registered in Unity Catalog Model Registry.
+# MAGIC **Output**: model registered in Unity Catalog + MLflow metrics including
+# MAGIC Feature Importance (the key storytelling metric for this project).
 
 # COMMAND ----------
 
 import mlflow
 import mlflow.sklearn
-import numpy as np
-import pandas as pd
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingRegressor
-from sklearn.metrics import roc_auc_score, r2_score, mean_squared_error
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import roc_auc_score, precision_recall_fscore_support, classification_report
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -40,11 +38,11 @@ TRAIN_YEAR = df_spark.agg({"NU_ANO": "max"}).collect()[0][0]
 print(f"Training year: {TRAIN_YEAR}")
 
 df = df_spark.filter(F.col("NU_ANO") == TRAIN_YEAR).toPandas()
-print(f"Rows: {len(df):,}")
+print(f"Rows: {len(df):,} | Positive rate: {df['label_clf'].mean():.1%}")
 
 # COMMAND ----------
 
-# MAGIC %md ## Feature columns
+# MAGIC %md ## Features & train/test split
 
 # COMMAND ----------
 
@@ -57,17 +55,16 @@ NUMERIC_COLS = [
 FEATURE_COLS = CATEGORICAL_COLS + NUMERIC_COLS
 
 X = df[FEATURE_COLS]
-y_clf = df["label_clf"]
-y_reg = df["label_reg"]
+y = df["label_clf"]
 
-X_train, X_test, y_clf_train, y_clf_test, y_reg_train, y_reg_test = (
-    *__import__("sklearn.model_selection", fromlist=["train_test_split"])
-    .train_test_split(X, y_clf, y_reg, test_size=0.2, random_state=42),
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
 )
+print(f"Train: {len(X_train):,} | Test: {len(X_test):,}")
 
 # COMMAND ----------
 
-# MAGIC %md ## Preprocessing pipeline (shared)
+# MAGIC %md ## Preprocessing pipeline
 
 # COMMAND ----------
 
@@ -85,54 +82,55 @@ preprocessor = ColumnTransformer([
 
 # COMMAND ----------
 
-# MAGIC %md ## Train Classifier (RandomForest)
+# MAGIC %md ## Train & evaluate
 
 # COMMAND ----------
 
 with mlflow.start_run(run_name="enem-score-classifier"):
     clf_pipeline = Pipeline([
         ("preprocessor", preprocessor),
-        ("classifier", RandomForestClassifier(n_estimators=100, max_depth=8, n_jobs=-1, random_state=42)),
+        ("classifier", RandomForestClassifier(
+            n_estimators=200, max_depth=10, n_jobs=-1,
+            random_state=42, class_weight="balanced",
+        )),
     ])
-    clf_pipeline.fit(X_train, y_clf_train)
+    clf_pipeline.fit(X_train, y_train)
 
     y_prob = clf_pipeline.predict_proba(X_test)[:, 1]
-    auc = roc_auc_score(y_clf_test, y_prob)
+    y_pred = clf_pipeline.predict(X_test)
 
-    mlflow.log_param("n_estimators", 100)
-    mlflow.log_param("max_depth", 8)
-    mlflow.log_metric("auc_roc", round(auc, 4))
+    auc                    = roc_auc_score(y_test, y_prob)
+    prec, rec, f1, _       = precision_recall_fscore_support(y_test, y_pred, average="binary")
+
+    mlflow.log_param("n_estimators",  200)
+    mlflow.log_param("max_depth",     10)
+    mlflow.log_param("class_weight",  "balanced")
+    mlflow.log_metric("auc_roc",   round(float(auc),  4))
+    mlflow.log_metric("precision", round(float(prec), 4))
+    mlflow.log_metric("recall",    round(float(rec),  4))
+    mlflow.log_metric("f1",        round(float(f1),   4))
+
+    # ── Feature importance ──────────────────────────────────────────────────
+    importances = clf_pipeline.named_steps["classifier"].feature_importances_
+    feat_imp    = sorted(zip(FEATURE_COLS, importances), key=lambda x: x[1], reverse=True)
+
+    for name, imp in feat_imp:
+        mlflow.log_metric(f"feat_imp_{name}", round(float(imp), 4))
+
     mlflow.sklearn.log_model(
         clf_pipeline,
         "model",
         registered_model_name=f"{CATALOG}.ml_features.enem_score_classifier",
     )
-    print(f"[Classifier] AUC-ROC: {auc:.4f}")
 
-# COMMAND ----------
-
-# MAGIC %md ## Train Regressor (GradientBoosting)
-
-# COMMAND ----------
-
-with mlflow.start_run(run_name="enem-score-regressor"):
-    reg_pipeline = Pipeline([
-        ("preprocessor", preprocessor),
-        ("regressor", GradientBoostingRegressor(n_estimators=100, max_depth=5, random_state=42)),
-    ])
-    reg_pipeline.fit(X_train, y_reg_train)
-
-    y_pred = reg_pipeline.predict(X_test)
-    r2   = r2_score(y_reg_test, y_pred)
-    rmse = mean_squared_error(y_reg_test, y_pred, squared=False)
-
-    mlflow.log_param("n_estimators", 100)
-    mlflow.log_param("max_depth", 5)
-    mlflow.log_metric("r2",   round(r2, 4))
-    mlflow.log_metric("rmse", round(rmse, 2))
-    mlflow.sklearn.log_model(
-        reg_pipeline,
-        "model",
-        registered_model_name=f"{CATALOG}.ml_features.enem_score_regressor",
-    )
-    print(f"[Regressor] R²: {r2:.4f} | RMSE: {rmse:.2f}")
+    # ── Storytelling output ─────────────────────────────────────────────────
+    print(f"\n[Classifier] AUC-ROC: {auc:.4f} | Recall: {rec:.4f} | F1: {f1:.4f}\n")
+    print("─" * 58)
+    print("  Fatores que mais impactam o desempenho no ENEM:")
+    print("─" * 58)
+    for i, (name, imp) in enumerate(feat_imp[:10], 1):
+        bar = "█" * int(imp * 60)
+        print(f"  {i:2d}. {name:<28} {imp * 100:5.1f}%  {bar}")
+    print("─" * 58)
+    print()
+    print(classification_report(y_test, y_pred, target_names=["Abaixo da média", "Acima da média"]))
