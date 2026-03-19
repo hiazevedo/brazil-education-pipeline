@@ -1,47 +1,34 @@
 """Download IDEB municipal data from INEP and upload to Databricks."""
 
 import os
-import zipfile
 import tempfile
 import pandas as pd
 from uploader import upload_file
 
-# IDEB is published biennially; one file covers all editions
-# Municipal IDEB: Anos Iniciais (EF1) and Anos Finais (EF2)
+# INEP changed the path for the 2023 edition — files are now direct XLSX (no ZIP)
+# Previous editions used: download.inep.gov.br/educacao_basica/portal_ideb/planilhas_para_download/{year}/
 IDEB_URLS = {
-    "municipios_ef1": "https://download.inep.gov.br/educacao_basica/portal_ideb/planilhas_para_download/2023/divulgacao_municipios_ef_1_anos_2023.zip",
-    "municipios_ef2": "https://download.inep.gov.br/educacao_basica/portal_ideb/planilhas_para_download/2023/divulgacao_municipios_ef_2_anos_2023.zip",
+    "municipios_ef1": "https://download.inep.gov.br/ideb/resultados/divulgacao_anos_iniciais_municipios_2023.xlsx",
+    "municipios_ef2": "https://download.inep.gov.br/ideb/resultados/divulgacao_anos_finais_municipios_2023.xlsx",
 }
 
 
 def download_and_convert(key: str, url: str, tmp_dir: str) -> str:
-    """Download IDEB zip (XLS/XLSX), parse, and save as Parquet."""
+    """Download IDEB XLSX, parse, and save as Parquet."""
     import requests
 
-    zip_path = os.path.join(tmp_dir, f"ideb_{key}.zip")
+    xls_path = os.path.join(tmp_dir, f"ideb_{key}.xlsx")
 
     print(f"[{key}] Downloading from {url} ...")
     with requests.get(url, stream=True, timeout=120) as r:
         r.raise_for_status()
-        with open(zip_path, "wb") as f:
+        with open(xls_path, "wb") as f:
             for chunk in r.iter_content(chunk_size=4 * 1024 * 1024):
                 f.write(chunk)
 
-    print(f"[{key}] Extracting ...")
-    with zipfile.ZipFile(zip_path, "r") as z:
-        all_files = z.namelist()
-        print(f"[{key}] Files in ZIP: {all_files}")
-        xls_name = next(
-            n for n in all_files
-            if n.lower().endswith((".xls", ".xlsx"))
-        )
-        print(f"[{key}] Selected: {xls_name}")
-        z.extract(xls_name, tmp_dir)
-        xls_path = os.path.join(tmp_dir, xls_name)
-
     print(f"[{key}] Parsing spreadsheet ...")
     # INEP IDEB sheets have metadata rows at the top.
-    # Try header rows 9, 10, 8 until we find one that yields non-empty columns.
+    # Try header rows 9, 10, 8, 7 until we find one that yields non-empty columns.
     df = None
     for header_row in (9, 10, 8, 7):
         candidate = pd.read_excel(xls_path, sheet_name=0, header=header_row, dtype=str)
