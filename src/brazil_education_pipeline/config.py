@@ -1,5 +1,3 @@
-# Databricks notebook source
-
 # Central configuration — catalog, schemas, and volume paths.
 # Used by all notebooks via: from brazil_education_pipeline.config import *
 
