@@ -58,12 +58,25 @@ def download_and_filter(year: int, tmp_dir: str) -> str:
         z.extract(csv_name, tmp_dir)
         csv_path = os.path.join(tmp_dir, csv_name)
 
-    print(f"[{year}] Filtering columns ...")
+    print(f"[{year}] Detecting CSV format ...")
+    with open(csv_path, encoding="latin1") as f:
+        header_line = f.readline()
+    sep = ";" if header_line.count(";") >= header_line.count(",") else ","
+    print(f"[{year}] Detected separator: '{sep}'")
+
+    # Cross-check expected columns against what actually exists in the file
+    header_df = pd.read_csv(csv_path, sep=sep, encoding="latin1", nrows=0)
+    available_cols = [c for c in ENEM_COLUMNS if c in header_df.columns]
+    missing_cols = set(ENEM_COLUMNS) - set(available_cols)
+    if missing_cols:
+        print(f"[{year}] Warning: columns not found (skipping): {sorted(missing_cols)}")
+    print(f"[{year}] Reading {len(available_cols)}/{len(ENEM_COLUMNS)} columns ...")
+
     df = pd.read_csv(
         csv_path,
-        sep=";",
+        sep=sep,
         encoding="latin1",
-        usecols=ENEM_COLUMNS,
+        usecols=available_cols,
         dtype=str,  # keep raw types; casting happens in Silver layer
     )
 
