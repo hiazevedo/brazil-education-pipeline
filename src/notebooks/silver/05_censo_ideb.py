@@ -69,9 +69,10 @@ import re
 ID_COLS   = ["SG_UF", "CO_MUNICIPIO", "NO_MUNICIPIO", "REDE", "SEGMENTO"]
 IDEB_COLS = [c for c in df_ideb_raw.columns if re.match(r"VL_OBSERVADO_\d{4}$", c)]
 
-stack_expr = f"stack({len(IDEB_COLS)}, " + \
-    ", ".join([f"'{re.search(r'(\\d{{4}})$', c).group(1)}', `{c}`" for c in IDEB_COLS]) + \
-    ") as (ano, ideb)"
+stack_expr = "stack({}, {}) as (ano, ideb)".format(
+    len(IDEB_COLS),
+    ", ".join(["'{}', `{}`".format(c.split("_")[-1], c) for c in IDEB_COLS])
+)
 
 df_ideb = (
     df_ideb_raw.select(*ID_COLS, F.expr(stack_expr))
