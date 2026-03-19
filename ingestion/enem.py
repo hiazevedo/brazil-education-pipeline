@@ -66,10 +66,16 @@ def download_and_filter(year: int, tmp_dir: str) -> str:
 
     # Cross-check expected columns against what actually exists in the file
     header_df = pd.read_csv(csv_path, sep=sep, encoding="latin1", nrows=0)
+    print(f"[{year}] Columns in file ({len(header_df.columns)}): {list(header_df.columns[:10])} ...")
     available_cols = [c for c in ENEM_COLUMNS if c in header_df.columns]
     missing_cols = set(ENEM_COLUMNS) - set(available_cols)
     if missing_cols:
         print(f"[{year}] Warning: columns not found (skipping): {sorted(missing_cols)}")
+    if not available_cols:
+        raise ValueError(
+            f"[{year}] None of the expected columns were found. "
+            f"First 10 actual columns: {list(header_df.columns[:10])}"
+        )
     print(f"[{year}] Reading {len(available_cols)}/{len(ENEM_COLUMNS)} columns ...")
 
     df = pd.read_csv(

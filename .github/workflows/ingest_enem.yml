@@ -40,10 +40,11 @@ jobs:
         working-directory: ingestion
         run: python enem.py
 
-      - name: Trigger Databricks pipeline job
-        if: success()
-        run: |
-          curl -sf -X POST "$DATABRICKS_HOST/api/2.1/jobs/run-now" \
-            -H "Authorization: Bearer $DATABRICKS_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{"job_id": ${{ vars.DATABRICKS_PIPELINE_JOB_ID }} }'
+      # Uncomment and set DATABRICKS_PIPELINE_JOB_ID in repo variables to auto-trigger
+      # - name: Trigger Databricks pipeline job
+      #   if: success()
+      #   run: |
+      #     curl -sf -X POST "$DATABRICKS_HOST/api/2.1/jobs/run-now" \
+      #       -H "Authorization: Bearer $DATABRICKS_TOKEN" \
+      #       -H "Content-Type: application/json" \
+      #       -d '{"job_id": ${{ vars.DATABRICKS_PIPELINE_JOB_ID }} }'
