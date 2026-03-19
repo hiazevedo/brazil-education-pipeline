@@ -78,7 +78,7 @@ df_ideb = (
     df_ideb_raw.select(*ID_COLS, F.expr(stack_expr))
     .filter(F.col("ideb").isNotNull())
     .withColumn("ano",  F.col("ano").cast(IntegerType()))
-    .withColumn("ideb", F.col("ideb").cast(FloatType()))
+    .withColumn("ideb", F.expr("try_cast(ideb as float)"))  # '-' = sem dado → NULL
     .withColumn("CO_MUNICIPIO", F.col("CO_MUNICIPIO").cast(IntegerType()))
 )
 
