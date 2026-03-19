@@ -16,7 +16,7 @@ df_raw = (
     .option("recursiveFileLookup", "true")
     .load(f"{VOLUME_RAW}/censo_escolar_*.parquet")
     .withColumn("_ingested_at", F.current_timestamp())
-    .withColumn("_source_file", F.input_file_name())
+    .withColumn("_source_file", F.col("_metadata.file_path"))
 )
 
 print(f"Rows: {df_raw.count():,} | Columns: {len(df_raw.columns)}")
