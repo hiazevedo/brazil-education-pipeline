@@ -53,20 +53,34 @@ def download_and_filter(year: int, tmp_dir: str) -> str:
 
     print(f"[{year}] Extracting ...")
     with zipfile.ZipFile(zip_path, "r") as z:
-        # INEP zips contain a CSV in DADOS/ subfolder
-        csv_name = next(n for n in z.namelist() if n.endswith(".csv") and "DADOS" in n)
+        all_csvs = [n for n in z.namelist() if n.upper().endswith(".CSV")]
+        print(f"[{year}] CSVs in ZIP: {all_csvs}")
+        # The participants file contains 'MICRODADOS_ENEM' in its name
+        csv_name = next(
+            n for n in all_csvs if "MICRODADOS_ENEM" in n.upper()
+        )
+        print(f"[{year}] Selected: {csv_name}")
         z.extract(csv_name, tmp_dir)
         csv_path = os.path.join(tmp_dir, csv_name)
 
     print(f"[{year}] Detecting CSV format ...")
-    with open(csv_path, encoding="latin1") as f:
-        header_line = f.readline()
+    # utf-8-sig strips BOM automatically; fallback to latin1 if decode fails
+    for encoding in ("utf-8-sig", "latin1"):
+        try:
+            with open(csv_path, encoding=encoding) as f:
+                header_line = f.readline()
+            break
+        except UnicodeDecodeError:
+            continue
     sep = ";" if header_line.count(";") >= header_line.count(",") else ","
-    print(f"[{year}] Detected separator: '{sep}'")
+    print(f"[{year}] Encoding: {encoding} | Separator: '{sep}'")
 
     # Cross-check expected columns against what actually exists in the file
-    header_df = pd.read_csv(csv_path, sep=sep, encoding="latin1", nrows=0)
-    print(f"[{year}] Columns in file ({len(header_df.columns)}): {list(header_df.columns[:10])} ...")
+    header_df = pd.read_csv(csv_path, sep=sep, encoding=encoding, nrows=0)
+    # Normalize column names: strip whitespace and BOM remnants
+    header_df.columns = header_df.columns.str.strip()
+    print(f"[{year}] First 5 columns (repr): {[repr(c) for c in header_df.columns[:5]]}")
+
     available_cols = [c for c in ENEM_COLUMNS if c in header_df.columns]
     missing_cols = set(ENEM_COLUMNS) - set(available_cols)
     if missing_cols:
@@ -74,7 +88,7 @@ def download_and_filter(year: int, tmp_dir: str) -> str:
     if not available_cols:
         raise ValueError(
             f"[{year}] None of the expected columns were found. "
-            f"First 10 actual columns: {list(header_df.columns[:10])}"
+            f"First 10 actual columns: {[repr(c) for c in header_df.columns[:10]]}"
         )
     print(f"[{year}] Reading {len(available_cols)}/{len(ENEM_COLUMNS)} columns ...")
 
