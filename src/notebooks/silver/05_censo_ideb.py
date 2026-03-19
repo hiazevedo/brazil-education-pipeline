@@ -62,21 +62,23 @@ print(f"[OK] Written to {SILVER_ESCOLAS}")
 
 df_ideb_raw = spark.table(BRONZE_IDEB)
 
-# INEP IDEB spreadsheets have edition years as column names (2019, 2021, 2023)
-# Unpivot (melt) to a tidy format: CO_MUNICIPIO | SEGMENTO | ANO | IDEB
-IDEB_YEAR_COLS = [c for c in df_ideb_raw.columns if c.strip().isdigit() and int(c) >= 2013]
+# INEP IDEB columns follow the pattern VL_OBSERVADO_YYYY (actual IDEB score per edition)
+# Extract year from column name and unpivot to tidy format: CO_MUNICIPIO | SEGMENTO | ANO | IDEB
+import re
 
-id_cols = [c for c in df_ideb_raw.columns if c not in IDEB_YEAR_COLS and not c.startswith("_")]
+ID_COLS   = ["SG_UF", "CO_MUNICIPIO", "NO_MUNICIPIO", "REDE", "SEGMENTO"]
+IDEB_COLS = [c for c in df_ideb_raw.columns if re.match(r"VL_OBSERVADO_\d{4}$", c)]
 
-stack_expr = f"stack({len(IDEB_YEAR_COLS)}, " + \
-    ", ".join([f"'{y}', `{y}`" for y in IDEB_YEAR_COLS]) + \
+stack_expr = f"stack({len(IDEB_COLS)}, " + \
+    ", ".join([f"'{re.search(r'(\\d{{4}})$', c).group(1)}', `{c}`" for c in IDEB_COLS]) + \
     ") as (ano, ideb)"
 
 df_ideb = (
-    df_ideb_raw.select(*id_cols, F.expr(stack_expr))
+    df_ideb_raw.select(*ID_COLS, F.expr(stack_expr))
     .filter(F.col("ideb").isNotNull())
     .withColumn("ano",  F.col("ano").cast(IntegerType()))
     .withColumn("ideb", F.col("ideb").cast(FloatType()))
+    .withColumn("CO_MUNICIPIO", F.col("CO_MUNICIPIO").cast(IntegerType()))
 )
 
 (

@@ -35,11 +35,10 @@ df_typed = (
     .withColumn("NU_ANO",            F.col("NU_ANO").cast(IntegerType()))
     .withColumn("CO_MUNICIPIO_ESC",  F.col("CO_MUNICIPIO_ESC").cast(IntegerType()))
     .withColumn("TP_FAIXA_ETARIA",   F.col("TP_FAIXA_ETARIA").cast(IntegerType()))
-    .withColumn("TP_SEXO",           F.col("TP_SEXO").cast(IntegerType()))
     .withColumn("TP_COR_RACA",       F.col("TP_COR_RACA").cast(IntegerType()))
     .withColumn("TP_ESCOLA",         F.col("TP_ESCOLA").cast(IntegerType()))
     .withColumn("IN_TREINEIRO",      F.col("IN_TREINEIRO").cast(IntegerType()))
-    .withColumn("Q006",              F.col("Q006").cast(IntegerType()))
+    # TP_SEXO (M/F), Q001, Q002, Q006 are letter-coded categoricals — keep as string
 )
 
 for col in GRADE_COLS:
