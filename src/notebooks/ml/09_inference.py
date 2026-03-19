@@ -1,10 +1,10 @@
 # Databricks notebook source
 
 # MAGIC %md
-# MAGIC # ML — Batch Inference
-# MAGIC Loads the latest registered classifier from Unity Catalog and scores
-# MAGIC the full `ml_features.enem_features` table.
-# MAGIC Results are written to `ml_features.enem_predictions`.
+# MAGIC # ML — Inferência em Lote
+# MAGIC Carrega o classificador mais recente registrado no Unity Catalog e aplica
+# MAGIC sobre toda a tabela `ml_features.enem_features`.
+# MAGIC Os resultados são gravados em `ml_features.enem_predictions`.
 
 # COMMAND ----------
 
@@ -17,7 +17,7 @@ CLASSIFIER_MODEL = f"{CATALOG}.ml_features.enem_score_classifier"
 
 # COMMAND ----------
 
-# MAGIC %md ## Load model (latest version alias = "champion")
+# MAGIC %md ## Carregamento do modelo (alias = "champion")
 
 # COMMAND ----------
 
@@ -25,7 +25,7 @@ model_clf = mlflow.sklearn.load_model(f"models:/{CLASSIFIER_MODEL}@champion")
 
 # COMMAND ----------
 
-# MAGIC %md ## Score full feature table
+# MAGIC %md ## Predição em toda a tabela de features
 
 # COMMAND ----------
 
@@ -46,7 +46,7 @@ df["pred_acima_media"] = model_clf.predict(X)
 
 # COMMAND ----------
 
-# MAGIC %md ## Write predictions
+# MAGIC %md ## Gravação das predições
 
 # COMMAND ----------
 

@@ -2,8 +2,8 @@
 
 # MAGIC %md
 # MAGIC # 00 — Setup
-# MAGIC Creates the catalog, schemas, and volume used by the entire pipeline.
-# MAGIC Run once before deploying other notebooks.
+# MAGIC Cria o catálogo, schemas e volume utilizados por todo o pipeline.
+# MAGIC Execute uma vez antes de fazer o deploy dos demais notebooks.
 
 # COMMAND ----------
 
@@ -12,7 +12,7 @@ catalog = dbutils.widgets.get("catalog")
 
 # COMMAND ----------
 
-# MAGIC %md ## Catalog & Schemas
+# MAGIC %md ## Catálogo e Schemas
 
 # COMMAND ----------
 
@@ -25,20 +25,20 @@ for schema in ("bronze", "silver", "gold", "ml_features"):
 
 # COMMAND ----------
 
-# MAGIC %md ## Volume (raw file landing zone)
+# MAGIC %md ## Volume (zona de entrada dos arquivos brutos)
 
 # COMMAND ----------
 
 spark.sql(f"""
     CREATE VOLUME IF NOT EXISTS {catalog}.bronze.raw_files
-    COMMENT 'Landing zone for raw ENEM, Censo Escolar and IDEB files uploaded via GitHub Actions'
+    COMMENT 'Zona de entrada para arquivos brutos do ENEM, Censo Escolar e IDEB enviados via GitHub Actions'
 """)
 
 print(f"[OK] Volume: /Volumes/{catalog}/bronze/raw_files")
 
 # COMMAND ----------
 
-# MAGIC %md ## Validate
+# MAGIC %md ## Validação
 
 # COMMAND ----------
 

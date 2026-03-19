@@ -2,7 +2,7 @@
 
 # MAGIC %md
 # MAGIC # Bronze — Censo Escolar
-# MAGIC Reads raw Parquet files from the Volume and writes to `bronze.censo_escolar_raw`.
+# MAGIC Lê arquivos Parquet brutos do Volume e grava em `bronze.censo_escolar_raw`.
 
 # COMMAND ----------
 

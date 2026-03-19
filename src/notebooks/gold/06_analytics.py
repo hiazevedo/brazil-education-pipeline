@@ -2,15 +2,15 @@
 
 # MAGIC %md
 # MAGIC # Gold — Analytics
-# MAGIC Produces all 5 Gold tables used by the dashboard.
+# MAGIC Gera as tabelas Gold utilizadas pelo dashboard.
 # MAGIC
-# MAGIC | Table | Description |
+# MAGIC | Tabela | Descrição |
 # MAGIC |---|---|
-# MAGIC | `gold.desempenho_por_perfil` | ENEM score by income × race × school type |
-# MAGIC | `gold.desigualdade_regional` | Average score by UF with national rank and gap |
-# MAGIC | `gold.infraestrutura_vs_ideb` | School infrastructure score correlated with IDEB |
-# MAGIC | `gold.evolucao_historica` | Time series 2020–2023 by region |
-# MAGIC | `gold.escola_performance_rank` | Public vs private school ranking |
+# MAGIC | `gold.desempenho_por_perfil` | Nota ENEM por renda × raça × tipo de escola |
+# MAGIC | `gold.desigualdade_regional` | Nota média por UF com ranking nacional e gap |
+# MAGIC | `gold.infraestrutura_vs_ideb` | Infraestrutura escolar correlacionada com o IDEB |
+# MAGIC | `gold.evolucao_historica` | Série temporal 2020–2023 por região |
+# MAGIC | `gold.escola_performance_rank` | Ranking de escolas públicas vs privadas |
 
 # COMMAND ----------
 

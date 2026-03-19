@@ -1,13 +1,13 @@
 # Databricks notebook source
 
 # MAGIC %md
-# MAGIC # ML — Model Training
-# MAGIC Trains a **RandomForestClassifier** on `ml_features.enem_features`.
+# MAGIC # ML — Treinamento do Modelo
+# MAGIC Treina um **RandomForestClassifier** sobre `ml_features.enem_features`.
 # MAGIC
-# MAGIC **Target**: `label_clf` — 1 if student is above national average, else 0
+# MAGIC **Target**: `label_clf` — 1 se o aluno está acima da média nacional, caso contrário 0
 # MAGIC
-# MAGIC **Output**: model registered in Unity Catalog + MLflow metrics including
-# MAGIC Feature Importance (the key storytelling metric for this project).
+# MAGIC **Output**: modelo registrado no Unity Catalog + métricas MLflow incluindo
+# MAGIC Feature Importance (a principal métrica narrativa deste projeto).
 
 # COMMAND ----------
 
@@ -31,7 +31,7 @@ mlflow.set_experiment(EXPERIMENT_NAME)
 
 # COMMAND ----------
 
-# MAGIC %md ## Load features → Pandas
+# MAGIC %md ## Carregamento das features → Pandas
 
 # COMMAND ----------
 
@@ -44,7 +44,7 @@ print(f"Rows: {len(df):,} | Positive rate: {df['label_clf'].mean():.1%}")
 
 # COMMAND ----------
 
-# MAGIC %md ## Features & train/test split
+# MAGIC %md ## Features e divisão treino/teste
 
 # COMMAND ----------
 
@@ -66,7 +66,7 @@ print(f"Train: {len(X_train):,} | Test: {len(X_test):,}")
 
 # COMMAND ----------
 
-# MAGIC %md ## Preprocessing pipeline
+# MAGIC %md ## Pipeline de pré-processamento
 
 # COMMAND ----------
 
@@ -84,7 +84,7 @@ preprocessor = ColumnTransformer([
 
 # COMMAND ----------
 
-# MAGIC %md ## Train & evaluate
+# MAGIC %md ## Treino e avaliação
 
 # COMMAND ----------
 

@@ -2,11 +2,11 @@
 
 # MAGIC %md
 # MAGIC # Silver — ENEM
-# MAGIC Cleans and types `bronze.enem_raw` → `silver.enem`.
-# MAGIC - Cast columns to proper types
-# MAGIC - Remove treineiros (IN_TREINEIRO = 1) and rows with all null grades
-# MAGIC - Compute `nota_media` (average of the 5 exam scores)
-# MAGIC - Standardize categorical codes to readable labels
+# MAGIC Limpa e tipifica `bronze.enem_raw` → `silver.enem`.
+# MAGIC - Converte colunas para os tipos corretos
+# MAGIC - Remove treineiros (IN_TREINEIRO = 1) e linhas com todas as notas nulas
+# MAGIC - Calcula `nota_media` (média das 5 provas)
+# MAGIC - Padroniza códigos categóricos para rótulos legíveis
 
 # COMMAND ----------
 
@@ -16,7 +16,7 @@ from brazil_education_pipeline.config import BRONZE_ENEM, SILVER_ENEM
 
 # COMMAND ----------
 
-# MAGIC %md ## Read Bronze
+# MAGIC %md ## Leitura da camada Bronze
 
 # COMMAND ----------
 
@@ -24,7 +24,7 @@ df = spark.table(BRONZE_ENEM)
 
 # COMMAND ----------
 
-# MAGIC %md ## Cast types
+# MAGIC %md ## Conversão de tipos
 
 # COMMAND ----------
 
@@ -46,7 +46,7 @@ for col in GRADE_COLS:
 
 # COMMAND ----------
 
-# MAGIC %md ## Filter invalid records
+# MAGIC %md ## Filtro de registros inválidos
 
 # COMMAND ----------
 
@@ -64,7 +64,7 @@ df_clean = (
 
 # COMMAND ----------
 
-# MAGIC %md ## Compute nota_media
+# MAGIC %md ## Cálculo da nota_media
 
 # COMMAND ----------
 
@@ -81,7 +81,7 @@ df_final = df_clean.withColumn(
 
 # COMMAND ----------
 
-# MAGIC %md ## Write Silver
+# MAGIC %md ## Gravação na camada Silver
 
 # COMMAND ----------
 

@@ -2,10 +2,10 @@
 
 # MAGIC %md
 # MAGIC # Bronze — ENEM
-# MAGIC Reads raw Parquet files from the Volume and writes to `bronze.enem_raw`.
-# MAGIC - No transformations — data is kept exactly as received from INEP
-# MAGIC - Schema-on-read with all columns as strings
-# MAGIC - Adds `_ingested_at` audit column
+# MAGIC Lê arquivos Parquet brutos do Volume e grava em `bronze.enem_raw`.
+# MAGIC - Sem transformações — dados mantidos exatamente como recebidos do INEP
+# MAGIC - Schema-on-read com todas as colunas como string
+# MAGIC - Adiciona coluna de auditoria `_ingested_at`
 
 # COMMAND ----------
 
@@ -14,7 +14,7 @@ from brazil_education_pipeline.config import VOLUME_RAW, BRONZE_ENEM
 
 # COMMAND ----------
 
-# MAGIC %md ## Read raw Parquet files
+# MAGIC %md ## Leitura dos arquivos Parquet brutos
 
 # COMMAND ----------
 
@@ -31,7 +31,7 @@ df_raw.printSchema()
 
 # COMMAND ----------
 
-# MAGIC %md ## Write to Delta — append (idempotent via MERGE or overwrite partition)
+# MAGIC %md ## Gravação no Delta — sobrescrita com particionamento por ano
 
 # COMMAND ----------
 

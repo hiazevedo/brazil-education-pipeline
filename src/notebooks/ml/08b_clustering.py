@@ -26,7 +26,7 @@ mlflow.set_experiment("/Users/higor_com@hotmail.com/municipio-clustering")
 
 # COMMAND ----------
 
-# MAGIC %md ## Load municipality profiles
+# MAGIC %md ## Carregamento dos perfis municipais
 
 # COMMAND ----------
 
@@ -92,7 +92,7 @@ with mlflow.start_run(run_name="municipio-kmeans"):
 
 # COMMAND ----------
 
-# MAGIC %md ## Save clusters
+# MAGIC %md ## Salvamento dos clusters
 
 # COMMAND ----------
 

@@ -2,17 +2,17 @@
 
 # MAGIC %md
 # MAGIC # ML — Feature Engineering
-# MAGIC Builds `ml_features.enem_features` from Silver tables.
+# MAGIC Constrói `ml_features.enem_features` a partir das tabelas Silver.
 # MAGIC
 # MAGIC **Features (~25):**
-# MAGIC - Socioeconomic: income bracket (Q006), parents' education (Q001, Q002), race, age group
-# MAGIC - Geographic: UF, region (Norte/Nordeste/etc.)
-# MAGIC - School: type (public/private), location (urban/rural), infra_score
-# MAGIC - Academic: individual scores per area
+# MAGIC - Socioeconômicas: faixa de renda (Q006), escolaridade dos pais (Q001, Q002), raça, faixa etária
+# MAGIC - Geográficas: UF, região (Norte/Nordeste/etc.)
+# MAGIC - Escolares: tipo (público/privado), localização (urbano/rural), infra_score
+# MAGIC - Acadêmicas: notas individuais por área
 # MAGIC
 # MAGIC **Targets:**
-# MAGIC - `label_clf`: 1 if nota_media >= national average, else 0
-# MAGIC - `label_reg`: nota_media (continuous)
+# MAGIC - `label_clf`: 1 se nota_media >= média nacional, caso contrário 0
+# MAGIC - `label_reg`: nota_media (contínua)
 
 # COMMAND ----------
 
@@ -21,7 +21,7 @@ from brazil_education_pipeline.config import SILVER_ENEM, SILVER_ESCOLAS, ML_FEA
 
 # COMMAND ----------
 
-# MAGIC %md ## Load Silver tables
+# MAGIC %md ## Carregamento das tabelas Silver
 
 # COMMAND ----------
 
@@ -30,7 +30,7 @@ escolas = spark.table(SILVER_ESCOLAS)
 
 # COMMAND ----------
 
-# MAGIC %md ## Join ENEM with school infrastructure
+# MAGIC %md ## Join do ENEM com infraestrutura escolar
 
 # COMMAND ----------
 
@@ -44,7 +44,7 @@ df = enem.join(escolas_latest, enem.CO_MUNICIPIO_ESC == escolas_latest.CO_ENTIDA
 
 # COMMAND ----------
 
-# MAGIC %md ## Region mapping
+# MAGIC %md ## Mapeamento de regiões
 
 # COMMAND ----------
 
@@ -62,7 +62,7 @@ df = df.withColumn("regiao", mapping_expr[F.col("SG_UF_ESC")])
 
 # COMMAND ----------
 
-# MAGIC %md ## Compute targets
+# MAGIC %md ## Cálculo dos targets
 
 # COMMAND ----------
 
@@ -88,7 +88,7 @@ print(f"Feature rows: {df_features.count():,} | Positive class rate: {df_feature
 
 # COMMAND ----------
 
-# MAGIC %md ## Save features table
+# MAGIC %md ## Salvamento da tabela de features
 
 # COMMAND ----------
 

@@ -2,8 +2,8 @@
 
 # MAGIC %md
 # MAGIC # Bronze — IDEB
-# MAGIC Reads raw Parquet files from the Volume and writes to `bronze.ideb_raw`.
-# MAGIC IDEB is biennial (2019 / 2021 / 2023) and covers Anos Iniciais (EF1) and Anos Finais (EF2).
+# MAGIC Lê arquivos Parquet brutos do Volume e grava em `bronze.ideb_raw`.
+# MAGIC O IDEB é bienal (2019 / 2021 / 2023) e cobre Anos Iniciais (EF1) e Anos Finais (EF2).
 
 # COMMAND ----------
 

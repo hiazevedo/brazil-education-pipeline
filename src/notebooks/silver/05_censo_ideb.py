@@ -2,10 +2,10 @@
 
 # MAGIC %md
 # MAGIC # Silver — Censo Escolar + IDEB
-# MAGIC Cleans both bronze tables and produces `silver.escolas` and `silver.ideb`.
+# MAGIC Limpa as duas tabelas bronze e produz `silver.escolas` e `silver.ideb`.
 # MAGIC
-# MAGIC **silver.escolas**: typed school records with an `infra_score` (0–5)
-# MAGIC **silver.ideb**: pivoted IDEB series ready to join with school/municipality data
+# MAGIC **silver.escolas**: registros de escolas tipificados com `infra_score` (0–5)
+# MAGIC **silver.ideb**: série do IDEB pivotada pronta para cruzamento com dados de escola/município
 
 # COMMAND ----------
 
@@ -18,7 +18,7 @@ from brazil_education_pipeline.config import (
 
 # COMMAND ----------
 
-# MAGIC %md ## Silver — Escolas
+# MAGIC %md ## Silver — Escolas (Censo Escolar)
 
 # COMMAND ----------
 
@@ -56,7 +56,7 @@ print(f"[OK] Written to {SILVER_ESCOLAS}")
 
 # COMMAND ----------
 
-# MAGIC %md ## Silver — IDEB
+# MAGIC %md ## Silver — IDEB (série histórica)
 
 # COMMAND ----------
 
