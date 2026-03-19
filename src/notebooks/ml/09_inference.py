@@ -23,8 +23,8 @@ REGRESSOR_MODEL  = f"{CATALOG}.ml_features.enem_score_regressor"
 
 # COMMAND ----------
 
-model_clf = mlflow.spark.load_model(f"models:/{CLASSIFIER_MODEL}@champion")
-model_reg = mlflow.spark.load_model(f"models:/{REGRESSOR_MODEL}@champion")
+model_clf = mlflow.sklearn.load_model(f"models:/{CLASSIFIER_MODEL}@champion")
+model_reg = mlflow.sklearn.load_model(f"models:/{REGRESSOR_MODEL}@champion")
 
 # COMMAND ----------
 
@@ -32,32 +32,38 @@ model_reg = mlflow.spark.load_model(f"models:/{REGRESSOR_MODEL}@champion")
 
 # COMMAND ----------
 
-df = spark.table(ML_FEATURES)
+CATEGORICAL_COLS = ["SG_UF_ESC", "regiao", "TP_SEXO", "Q001", "Q002", "Q006"]
+NUMERIC_COLS = [
+    "TP_FAIXA_ETARIA", "TP_COR_RACA", "TP_ESCOLA",
+    "TP_LOCALIZACAO", "infra_score",
+    "NU_NOTA_CN", "NU_NOTA_CH", "NU_NOTA_LC", "NU_NOTA_MT", "NU_NOTA_REDACAO",
+]
+FEATURE_COLS = CATEGORICAL_COLS + NUMERIC_COLS
 
-preds_clf = (
-    model_clf.transform(df)
-    .select("NU_ANO", "SG_UF_ESC", "TP_ESCOLA", "TP_COR_RACA", "Q006",
-            F.col("probability").alias("prob_acima_media"),
-            F.col("prediction").alias("pred_acima_media"))
-)
+ID_COLS = ["NU_ANO", "SG_UF_ESC", "TP_ESCOLA", "TP_COR_RACA", "Q006"]
 
-preds_reg = (
-    model_reg.transform(df)
-    .select("NU_ANO", "SG_UF_ESC", "TP_ESCOLA", "TP_COR_RACA", "Q006",
-            F.col("prediction").alias("pred_nota_media"))
-)
+df_spark = spark.table(ML_FEATURES)
+df = df_spark.select(ID_COLS + FEATURE_COLS).toPandas()
 
-df_predictions = (
-    preds_clf
-    .join(preds_reg, on=["NU_ANO", "SG_UF_ESC", "TP_ESCOLA", "TP_COR_RACA", "Q006"], how="inner")
-    .withColumn("scored_at", F.current_timestamp())
-)
+X = df[FEATURE_COLS]
+prob_acima_media = model_clf.predict_proba(X)[:, 1]
+pred_acima_media = model_clf.predict(X)
+pred_nota_media  = model_reg.predict(X)
+
+df["prob_acima_media"] = prob_acima_media
+df["pred_acima_media"] = pred_acima_media
+df["pred_nota_media"]  = pred_nota_media
 
 # COMMAND ----------
 
 # MAGIC %md ## Write predictions
 
 # COMMAND ----------
+
+df_predictions = (
+    spark.createDataFrame(df[ID_COLS + ["prob_acima_media", "pred_acima_media", "pred_nota_media"]])
+    .withColumn("scored_at", F.current_timestamp())
+)
 
 (
     df_predictions.write.format("delta")
