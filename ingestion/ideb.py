@@ -29,19 +29,29 @@ def download_and_convert(key: str, url: str, tmp_dir: str) -> str:
 
     print(f"[{key}] Extracting ...")
     with zipfile.ZipFile(zip_path, "r") as z:
+        all_files = z.namelist()
+        print(f"[{key}] Files in ZIP: {all_files}")
         xls_name = next(
-            n for n in z.namelist()
+            n for n in all_files
             if n.lower().endswith((".xls", ".xlsx"))
         )
+        print(f"[{key}] Selected: {xls_name}")
         z.extract(xls_name, tmp_dir)
         xls_path = os.path.join(tmp_dir, xls_name)
 
     print(f"[{key}] Parsing spreadsheet ...")
-    # INEP IDEB sheets have metadata rows at the top — skip until header row
-    df = pd.read_excel(xls_path, sheet_name=0, header=9, dtype=str)
-
-    # Drop completely empty rows/columns
-    df = df.dropna(how="all").dropna(axis=1, how="all")
+    # INEP IDEB sheets have metadata rows at the top.
+    # Try header rows 9, 10, 8 until we find one that yields non-empty columns.
+    df = None
+    for header_row in (9, 10, 8, 7):
+        candidate = pd.read_excel(xls_path, sheet_name=0, header=header_row, dtype=str)
+        candidate = candidate.dropna(how="all").dropna(axis=1, how="all")
+        if len(candidate.columns) > 3:
+            df = candidate
+            print(f"[{key}] Header row: {header_row} | Columns ({len(df.columns)}): {list(df.columns[:5])}")
+            break
+    if df is None:
+        raise ValueError(f"[{key}] Could not detect header row in spreadsheet.")
 
     # Tag which segment this is
     df["SEGMENTO"] = key
