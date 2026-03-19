@@ -38,7 +38,7 @@ NUMERIC_COLS = [
 FEATURE_COLS = CATEGORICAL_COLS + NUMERIC_COLS
 ID_COLS      = ["NU_ANO", "SG_UF_ESC", "TP_ESCOLA", "TP_COR_RACA", "Q006"]
 
-df = spark.table(ML_FEATURES).select(ID_COLS + FEATURE_COLS).toPandas()
+df = spark.table(ML_FEATURES).toPandas()
 
 X                = df[FEATURE_COLS]
 df["prob_acima_media"] = model_clf.predict_proba(X)[:, 1]
