@@ -7,6 +7,12 @@ bundle:
 include:
   - resources/*.yml
 
+artifacts:
+  brazil_edu_whl:
+    type: whl
+    path: .
+    build: "pip install build && python -m build --wheel"
+
 variables:
   catalog:
     description: Unity Catalog catalog name
