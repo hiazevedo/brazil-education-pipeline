@@ -13,6 +13,7 @@
 
 import mlflow
 import mlflow.sklearn
+from mlflow.models import infer_signature
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score, precision_recall_fscore_support, classification_report
 from sklearn.model_selection import train_test_split
@@ -117,10 +118,12 @@ with mlflow.start_run(run_name="enem-score-classifier"):
     for name, imp in feat_imp:
         mlflow.log_metric(f"feat_imp_{name}", round(float(imp), 4))
 
+    signature = infer_signature(X_train, clf_pipeline.predict(X_train))
     mlflow.sklearn.log_model(
         clf_pipeline,
         "model",
         registered_model_name=f"{CATALOG}.ml_features.enem_score_classifier",
+        signature=signature,
     )
 
     # ── Storytelling output ─────────────────────────────────────────────────

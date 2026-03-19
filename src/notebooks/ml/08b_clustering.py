@@ -19,7 +19,6 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from pyspark.sql import functions as F
 from brazil_education_pipeline.config import GOLD_VULNERABILIDADE, ML_MUNICIPIO_CLUSTERS
 
 mlflow.set_registry_uri("databricks-uc")
