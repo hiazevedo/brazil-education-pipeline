@@ -10,7 +10,9 @@
 
 import mlflow
 from pyspark.sql import functions as F
-from brazil_education_pipeline.config import CATALOG, ML_FEATURES, ML_PREDICTIONS
+CATALOG        = "education_pipeline"
+ML_FEATURES    = f"{CATALOG}.ml_features.enem_features"
+ML_PREDICTIONS = f"{CATALOG}.ml_features.enem_predictions"
 
 mlflow.set_registry_uri("databricks-uc")
 CLASSIFIER_MODEL = f"{CATALOG}.ml_features.enem_score_classifier"

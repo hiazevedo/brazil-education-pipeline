@@ -23,10 +23,16 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from pyspark.sql import functions as F
-from brazil_education_pipeline.config import CATALOG, ML_FEATURES
+# Inline config — evita dependência do pacote instalado no Serverless
+CATALOG      = "education_pipeline"
+ML_FEATURES  = f"{CATALOG}.ml_features.enem_features"
 
-mlflow.set_registry_uri("databricks-uc")
-EXPERIMENT_NAME = "/Users/higor_com@hotmail.com/enem-model-training"
+# Workaround obrigatório no Databricks Free Edition Serverless
+mlflow.autolog(disable=True)
+
+EXPERIMENT_NAME = "/Users/{}/enem-model-training".format(
+    spark.sql("SELECT current_user()").collect()[0][0]
+)
 mlflow.set_experiment(EXPERIMENT_NAME)
 
 # COMMAND ----------
@@ -119,16 +125,9 @@ with mlflow.start_run(run_name="enem-score-classifier"):
     for name, imp in feat_imp:
         mlflow.log_metric(f"feat_imp_{name}", round(float(imp), 4))
 
-    clf_model_name = f"{CATALOG}.ml_features.enem_score_classifier"
-    signature    = infer_signature(X_train, clf_pipeline.predict(X_train))
-    model_info   = mlflow.sklearn.log_model(
-        clf_pipeline, "model",
-        registered_model_name=clf_model_name,
-        signature=signature,
-    )
-    MlflowClient().set_registered_model_alias(
-        clf_model_name, "champion", model_info.registered_model_version
-    )
+    # registered_model_name, signature e set_registered_model_alias removidos
+    # não suportados no Serverless Free Edition — causam CONFIG_NOT_AVAILABLE
+    mlflow.sklearn.log_model(clf_pipeline, "model")
 
     # ── Storytelling output ─────────────────────────────────────────────────
     print(f"\n[Classifier] AUC-ROC: {auc:.4f} | Recall: {rec:.4f} | F1: {f1:.4f}\n")

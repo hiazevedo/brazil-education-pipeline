@@ -19,7 +19,9 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from brazil_education_pipeline.config import GOLD_VULNERABILIDADE, ML_MUNICIPIO_CLUSTERS
+CATALOG               = "education_pipeline"
+GOLD_VULNERABILIDADE  = f"{CATALOG}.gold.vulnerabilidade_municipal"
+ML_MUNICIPIO_CLUSTERS = f"{CATALOG}.ml_features.municipio_clusters"
 
 mlflow.set_registry_uri("databricks-uc")
 mlflow.set_experiment("/Users/higor_com@hotmail.com/municipio-clustering")

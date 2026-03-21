@@ -7,7 +7,9 @@
 # COMMAND ----------
 
 from pyspark.sql import functions as F
-from brazil_education_pipeline.config import VOLUME_RAW, BRONZE_CENSO_ESCOLAR
+CATALOG              = "education_pipeline"
+VOLUME_RAW           = f"/Volumes/{CATALOG}/bronze/raw_files"
+BRONZE_CENSO_ESCOLAR = f"{CATALOG}.bronze.censo_escolar_raw"
 
 # COMMAND ----------
 

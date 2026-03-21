@@ -11,10 +11,11 @@
 
 from pyspark.sql import functions as F
 from pyspark.sql.types import IntegerType, FloatType
-from brazil_education_pipeline.config import (
-    BRONZE_CENSO_ESCOLAR, BRONZE_IDEB,
-    SILVER_ESCOLAS, SILVER_IDEB,
-)
+CATALOG              = "education_pipeline"
+BRONZE_CENSO_ESCOLAR = f"{CATALOG}.bronze.censo_escolar_raw"
+BRONZE_IDEB          = f"{CATALOG}.bronze.ideb_raw"
+SILVER_ESCOLAS       = f"{CATALOG}.silver.escolas"
+SILVER_IDEB          = f"{CATALOG}.silver.ideb"
 
 # COMMAND ----------
 

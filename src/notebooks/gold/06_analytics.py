@@ -15,12 +15,18 @@
 # COMMAND ----------
 
 from pyspark.sql import functions as F, Window
-from brazil_education_pipeline.config import (
-    SILVER_ENEM, SILVER_ESCOLAS, SILVER_IDEB,
-    GOLD_DESEMPENHO_PERFIL, GOLD_DESIGUALDADE_REGIONAL,
-    GOLD_INFRA_VS_IDEB, GOLD_EVOLUCAO_HISTORICA, GOLD_ESCOLA_RANK,
-    GOLD_GAP_GENERO, GOLD_ALUNO_IMPROVAVEL, GOLD_VULNERABILIDADE,
-)
+CATALOG                    = "education_pipeline"
+SILVER_ENEM                = f"{CATALOG}.silver.enem"
+SILVER_ESCOLAS             = f"{CATALOG}.silver.escolas"
+SILVER_IDEB                = f"{CATALOG}.silver.ideb"
+GOLD_DESEMPENHO_PERFIL     = f"{CATALOG}.gold.desempenho_por_perfil"
+GOLD_DESIGUALDADE_REGIONAL = f"{CATALOG}.gold.desigualdade_regional"
+GOLD_INFRA_VS_IDEB         = f"{CATALOG}.gold.infraestrutura_vs_ideb"
+GOLD_EVOLUCAO_HISTORICA    = f"{CATALOG}.gold.evolucao_historica"
+GOLD_ESCOLA_RANK           = f"{CATALOG}.gold.escola_performance_rank"
+GOLD_GAP_GENERO            = f"{CATALOG}.gold.gap_genero"
+GOLD_ALUNO_IMPROVAVEL      = f"{CATALOG}.gold.aluno_improvavel"
+GOLD_VULNERABILIDADE       = f"{CATALOG}.gold.vulnerabilidade_municipal"
 
 # COMMAND ----------
 

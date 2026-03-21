@@ -17,7 +17,10 @@
 # COMMAND ----------
 
 from pyspark.sql import functions as F
-from brazil_education_pipeline.config import SILVER_ENEM, SILVER_ESCOLAS, ML_FEATURES
+CATALOG        = "education_pipeline"
+SILVER_ENEM    = f"{CATALOG}.silver.enem"
+SILVER_ESCOLAS = f"{CATALOG}.silver.escolas"
+ML_FEATURES    = f"{CATALOG}.ml_features.enem_features"
 
 # COMMAND ----------
 

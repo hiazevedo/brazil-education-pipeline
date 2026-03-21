@@ -12,7 +12,9 @@
 
 from pyspark.sql import functions as F
 from pyspark.sql.types import IntegerType, FloatType
-from brazil_education_pipeline.config import BRONZE_ENEM, SILVER_ENEM
+CATALOG     = "education_pipeline"
+BRONZE_ENEM = f"{CATALOG}.bronze.enem_raw"
+SILVER_ENEM = f"{CATALOG}.silver.enem"
 
 # COMMAND ----------
 
